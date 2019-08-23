@@ -82,14 +82,27 @@ const shoppingList = (function(){
       .closest('.js-item-element')
       .data('item-id');
   }
-  
+
+
+
   function handleItemCheckClicked() {
     $('.js-shopping-list').on('click', '.js-item-toggle', event => {
       const id = getItemIdFromElement(event.currentTarget);
-      store.findAndToggleChecked(id);
-      render();
+      const item = store.findById(id);
+      api.updateItem(id, { checked: !item.checked })   // <= we send the needed property
+        .then(() => {
+          store.findAndUpdate(id, { checked: !item.checked });
+          render();
+        });
+        // .catch((err) => {
+        //   console.log(err);
+        //   store.setError(err.message);
+        //   renderError();
+        // }
+        // );
     });
   }
+
   
   function handleDeleteItemClicked() {
     // like in `handleItemCheckClicked`, we use event delegation
@@ -97,26 +110,34 @@ const shoppingList = (function(){
       // get the index of the item in store.items
       const id = getItemIdFromElement(event.currentTarget);
       // delete the item
-      store.findAndDelete(id);
-      // render the updated shopping list
-      render();
+      //api.deleteItem(id);
+
+      api.deleteItem(id)    // <= we send the needed property
+        .then(() => {
+          store.findAndDelete(id);
+          render();
+        });
     });
   }
   
+
+
   function handleEditShoppingItemSubmit() {
     $('.js-shopping-list').on('submit', '.js-edit-item', event => {
       event.preventDefault();
       const id = getItemIdFromElement(event.currentTarget);
       const itemName = $(event.currentTarget).find('.shopping-item').val();
-
-      api.updateItem(id, itemName)
-        .then(res => {
-          if (res.ok === true){
-            store.findAndUpdateName(id, itemName);
-            store.setItemIsEditing(id, false);
-            render();
-          }
+      api.updateItem(id, { name: itemName })    // <= we send the needed property
+        .then(() => {
+          store.findAndUpdate(id, { name: itemName });
+          store.setItemIsEditing(id, false);
+          render();
         });
+        // .catch((err) => {
+        //   console.log(err);
+        //   store.setError(err.message);
+        //   renderError();
+        // });
     });
   }
   
@@ -159,3 +180,55 @@ const shoppingList = (function(){
     bindEventListeners: bindEventListeners,
   };
 }());
+
+
+
+// function handleItemCheckClicked() {
+//   $(‘.js-shopping-list’).on(‘click’, ‘.js-item-toggle’, event => {
+//     const id = getItemIdFromElement(event.currentTarget);
+//     const item = store.findById(id);
+//     api.updateItem(id, { checked: !item.checked })   // <= we send the needed property
+//       .then(() => {
+//         store.findAndUpdate(id, { checked: !item.checked });
+//         render();
+//       })
+//       .catch((err) => {
+//         console.log(err);
+//         store.setError(err.message);
+//         renderError();
+//       }
+//       );
+//   });
+// }
+// ​
+// function handleEditShoppingItemSubmit() {
+//   $(‘.js-shopping-list’).on(‘submit’, ‘.js-edit-item’, event => {
+//     event.preventDefault();
+//     const id = getItemIdFromElement(event.currentTarget);
+//     const itemName = $(event.currentTarget).find(‘.shopping-item’).val();
+//     api.updateItem(id, { name: itemName })    // <= we send the needed property
+//       .then(() => {
+//         store.findAndUpdate(id, { name: itemName });
+//         store.setItemIsEditing(id, false);
+//         render();
+//       })
+//       .catch((err) => {
+//         console.log(err);
+//         store.setError(err.message);
+//         renderError();
+//       });
+//   });
+// }
+// ​
+// ​
+// // in API call request
+// const updateItem = function(id, updateData) {
+//   const newData = JSON.stringify(updateData);   // <= here, the `updateData` is an Object argument, sent by the listeners
+//   return listApiFetch(BASE_URL + ‘/items/’ + id, {
+//     method: ‘PATCH’,
+//     headers: {
+//       ‘Content-Type’: ‘application/json’,
+//     },
+//     body: newData
+//   });
+// };

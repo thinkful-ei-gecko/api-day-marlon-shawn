@@ -14,7 +14,7 @@ $(document).ready(function() {
     .then(res => res.json())
     .then((items) => {
       const item = items[0];
-      return api.updateItem(item.id, 'foobar');
+      return api.updateItem(item.id, {name: 'test'});
     })
     .then(res => res.json())
     .then(() => console.log('updated!'));
