@@ -1,5 +1,5 @@
 'use strict';
-/* global store, $ */
+/* global store, api $ */
 
 // eslint-disable-next-line no-unused-vars
 const shoppingList = (function(){
@@ -67,7 +67,12 @@ const shoppingList = (function(){
       event.preventDefault();
       const newItemName = $('.js-shopping-list-entry').val();
       $('.js-shopping-list-entry').val('');
-      store.addItem(newItemName);
+      api.createItem(newItemName)
+        .then(res => res.json())
+        .then((newItem) => {
+          store.addItem(newItem);
+          render();
+        });
       render();
     });
   }
@@ -103,9 +108,15 @@ const shoppingList = (function(){
       event.preventDefault();
       const id = getItemIdFromElement(event.currentTarget);
       const itemName = $(event.currentTarget).find('.shopping-item').val();
-      store.findAndUpdateName(id, itemName);
-      store.setItemIsEditing(id, false);
-      render();
+
+      api.updateItem(id, itemName)
+        .then(res => {
+          if (res.ok === true){
+            store.findAndUpdateName(id, itemName);
+            store.setItemIsEditing(id, false);
+            render();
+          }
+        });
     });
   }
   

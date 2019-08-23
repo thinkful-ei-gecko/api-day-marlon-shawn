@@ -3,10 +3,10 @@
 
 const api = (function(){
   const BASE_URL = 'https://thinkful-list-api.herokuapp.com/shawn';
-  let getItem = function() {
+  const getItems = function() {
     return fetch(`${BASE_URL}/items`);
   };
-  let createItem = function(name) {
+  const createItem = function(name) {
     let newItem =JSON.stringify({name: name});
     let fetchObj = {
       method: 'POST',
@@ -15,8 +15,20 @@ const api = (function(){
     };
     return fetch(`${BASE_URL}/items`, fetchObj);
   };
+  const updateItem = function(id, updateData) {
+    console.log(updateData);
+    let stringUpdateData = JSON.stringify({name: updateData});
+    let fetchObj = {
+      method: 'PATCH',
+      headers: {'Content-Type': 'application/json'},
+      body: stringUpdateData
+    };
+    return fetch(`${BASE_URL}/items/${id}`, fetchObj);
+  };
+
   return {
-    getItem,
+    getItems,
     createItem,
+    updateItem,
   };
 })();
